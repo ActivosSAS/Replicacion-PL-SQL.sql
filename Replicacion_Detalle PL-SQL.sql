@@ -511,4 +511,37 @@ BEGIN
   END IF;
 END;
 /
+--DROP TRIGGER PAR.HV_REQUISICION_AUDIT;
+CREATE OR REPLACE TRIGGER RHU.HV_REPLICATION_MASTER_AUDIT
+AFTER INSERT OR UPDATE ON RHU.Replication_Master
+FOR EACH ROW
+DECLARE
+--****************************************************************
+--** NOMBRE SCRIPT        : .SQL
+--** OBJETIVO             : Crear el trigger Replication_Master en el esquema RHU para auditar las operaciones de inserción o actualización en la tabla REQUISICION, 
+--**                        generando un registro en RHU.Replication_Detail con los detalles en formato JSON y marcándolo como pendiente de replicación.
+--** ESQUEMA              : PAR
+--** AUTOR                : JUFORERO
+--** FECHA CREACION       : 14/01/2025
+--****************************************************************
 
+    l_enqueue_options    dbms_aq.enqueue_options_t;
+    l_message_properties dbms_aq.message_properties_t;
+    l_message            sys.aq$_jms_text_message;
+    l_msgid              RAW(16);
+    l_id_rd              NUMBER; 
+BEGIN
+    
+--    Construcción del mensaje de la cola AQ
+    l_message := sys.aq$_jms_text_message.construct;
+    l_message.set_text(xmltype('<idEvento>'||:NEW.ID_MASTER||'</idEvento>').getClobVal());
+    -- Envío del mensaje a la cola AQ
+    dbms_aq.enqueue (
+        queue_name         => 'AQ_ADMIN.my_qu',
+        enqueue_options    => l_enqueue_options,
+        message_properties => l_message_properties,
+       payload            => l_message,
+        msgid              => l_msgid
+    );
+    
+END;
