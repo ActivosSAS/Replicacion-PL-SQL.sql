@@ -1,3 +1,14 @@
+--Trigger PAR.HV_RESTRICCIONES_AUDIT alterado.
+
+
+--Trigger PAR.HV_REQUISICION_AUDIT alterado.
+
+
+--Trigger RHU.HV_CONTRATO_AUDIT alterado.
+
+
+--Trigger RHU.OBSERVACION_LINGRESO_AUDIT alterado.
+
 SELECT * FROM RHU.Replication_Detail ORDER BY ID_RD DESC;
 SELECT * FROM  RHU.Replication_Config;
  --DROP TRIGGER RHU.Replication_Detail_BI;
@@ -537,7 +548,7 @@ BEGIN
     l_message.set_text(xmltype('<idEvento>'||:NEW.ID_MASTER||'</idEvento>').getClobVal());
     -- Envío del mensaje a la cola AQ
     dbms_aq.enqueue (
-        queue_name         => 'AQ_ADMIN.my_qu',
+        queue_name         => 'AQ_ADMIN.sq_masivo',
         enqueue_options    => l_enqueue_options,
         message_properties => l_message_properties,
        payload            => l_message,
@@ -545,3 +556,138 @@ BEGIN
     );
     
 END;
+/
+-- Eliminar el trigger
+DROP TRIGGER RHU.TRG_CBU_ID_AUTO;
+/
+-- Eliminar la secuencia
+DROP SEQUENCE RHU.CBU_ID_SEQ;
+/
+-- Eliminar la tabla
+DROP TABLE RHU.CANDIDATE_BULK_UPLOAD CASCADE CONSTRAINTS;
+/
+--****************************************************************
+--** NOMBRE SCRIPT        : CBU_TRIGGER.SQL
+--** OBJETIVO             : Crear el trigger TRG_CBU_ID_AUTO en el esquema RHU para asignar 
+--**                        automáticamente un ID a los registros insertados en la tabla 
+--**                        CANDIDATE_BULK_UPLOAD utilizando la secuencia CBU_ID_SEQ.
+--** ESQUEMA              : RHU
+--** AUTOR                : JUFORERO
+--** FECHA CREACION       : 14/01/2025
+--****************************************************************
+-- Crear la tabla con ID como NUMBER sin autoincremento
+CREATE TABLE RHU.CANDIDATE_BULK_UPLOAD (
+    CBU_ID NUMBER PRIMARY KEY,  -- IDENTIFICADOR ÚNICO MANUALMENTE GENERADO
+    CBU_IDENTIFICATION_TYPE VARCHAR2(3 BYTE) NOT NULL,  -- TIPO DE IDENTIFICACIÓN (CC, CE, ETC.)
+    CBU_IDENTIFICATION_NUMBER NUMBER(20,0) NOT NULL UNIQUE,  -- NÚMERO DE IDENTIFICACIÓN (ÚNICO)
+    CBU_EMAIL VARCHAR2(250 BYTE) NOT NULL,  -- CORREO ELECTRÓNICO DEL CANDIDATO
+    CBU_STATUS VARCHAR2(10 BYTE) NOT NULL CHECK (CBU_STATUS IN ('PENDING', 'SENT', 'ERROR')),  -- ESTADO DE LA TRANSACCIÓN
+    CBU_TRANSACTION_ID NUMBER NOT NULL,  -- ID ÚNICO DE LA TRANSACCIÓN (UUID)
+    CBU_USER VARCHAR2(50 BYTE) NOT NULL,  -- USUARIO QUE REALIZA LA OPERACIÓN
+    CBU_CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- FECHA DE CREACIÓN DEL REGISTRO
+);
+/
+
+-- Otorgar permisos a PUBLIC para la tabla
+GRANT ALL ON RHU.CANDIDATE_BULK_UPLOAD TO PUBLIC;
+/
+-- Crear la secuencia para el ID
+CREATE SEQUENCE RHU.CBU_ID_SEQ
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE;    
+/
+
+-- Crear el trigger para asignar automáticamente el ID
+CREATE OR REPLACE TRIGGER RHU.TRG_CBU_ID_AUTO
+BEFORE INSERT ON RHU.CANDIDATE_BULK_UPLOAD
+FOR EACH ROW
+BEGIN
+  IF :NEW.CBU_ID IS NULL THEN
+    SELECT RHU.CBU_ID_SEQ.NEXTVAL INTO :NEW.CBU_ID FROM DUAL;
+  END IF;
+END;
+/
+CREATE OR REPLACE PACKAGE BODY RHU.EMAIL_PKG AS
+    PROCEDURE SEND_BULK_EMAILS IS
+    vcDe                 VARCHAR2(200);
+    vcError              VARCHAR2(4000);
+    vcFirstName          VARCHAR2(200);
+
+        CURSOR c_candidates IS
+            SELECT CBU_IDENTIFICATION_TYPE, CBU_IDENTIFICATION_NUMBER,CBU_EMAIL
+            FROM RHU.CANDIDATE_BULK_UPLOAD
+            WHERE CBU_STATUS = 'PENDING';
+
+        v_CBU_IDENTIFICATION_TYPE VARCHAR2(3);
+        v_CBU_IDENTIFICATION_NUMBER NUMBER(20);
+        v_CBU_EMAIL VARCHAR2(250);
+        v_plantilla LONG; 
+        vcPlantillaMove LONG;
+
+    BEGIN           
+        BEGIN
+        
+    v_plantilla := '<a href="https://www.activos.com.co/" target="_blank">
+    <img src="https://i.imgur.com/CIwtI0I_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+    </a>
+    <a href="https://reclutador-qa.partnerdavinci.com/sign-up" target="_blank">
+    <img src="https://i.imgur.com/tHNETIb_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+    </a>
+    <a href="https://www.activos.com.co/oficinas-activos/" target="_blank">
+    <img src="https://i.imgur.com/G8mvTK7_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+    </a>
+    <a href="https://www.activos.com.co/" target="_blank">
+    <img src="https://i.imgur.com/Ba9LG5K_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+    </a>
+    <a href="https://reclutador-qa.partnerdavinci.com/sign-up" target="_blank">
+    <img src="https://i.imgur.com/apc6ahT_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+    </a>
+    <a href="https://www.activos.com.co/preguntas-frecuentes-activos/" target="_blank">
+    <img src="https://i.imgur.com/8Do66xC_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+    </a>
+    <a href="http://apps.activos.com.co/SINMAReceiver/SinmaPolicySender?nbeId=8" target="_blank">
+    <img src="https://i.imgur.com/cEmJ6R9_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+    </a>';
+                vcDe:='sinma@activate.com.co';
+        END;
+
+        FOR rec IN c_candidates LOOP
+            v_CBU_IDENTIFICATION_TYPE := rec.CBU_IDENTIFICATION_TYPE;
+            v_CBU_IDENTIFICATION_NUMBER := rec.CBU_IDENTIFICATION_NUMBER;
+            v_CBU_EMAIL := rec.CBU_EMAIL;
+            
+            SELECT EPL_NOM1 INTO vcFirstName FROM RHU.EMPLEADO 
+            WHERE EPL_ND=rec.CBU_IDENTIFICATION_NUMBER 
+            AND TDC_TD=rec.CBU_IDENTIFICATION_TYPE ;
+            
+            vcPlantillaMove:=REPLACE(v_plantilla,'$EPL_NOM1',vcFirstName);
+
+            pb_envia_x_e_delivery (
+	                      vcDe    --vcde         
+                          ,TRIM(rec.CBU_EMAIL)   --vcpara    
+                          ,NULL     --vcccopia     
+                          ,NULL   --vcc_oculta   
+                          ,''||vcFirstName||', Tu futuro comienza aquí | Completa tu registro en Activos'       --vcasunto     
+                          ,v_plantilla   --MENSAJE
+						  ,null           --vcruta
+                          ,null           --vcadjunto
+                          ,null           --vcReporte 
+                          ,null           --vcBuzonError
+                          ,null           --nmrequerimiento
+                          ,'JUFORERO'           --vcusuario    
+                          ,vcerror        --vcerror IN OUT 
+                          );
+                          
+            UPDATE RHU.CANDIDATE_BULK_UPLOAD
+            SET CBU_STATUS = 'SENT'
+            WHERE CBU_IDENTIFICATION_TYPE = v_CBU_IDENTIFICATION_TYPE
+            AND v_CBU_IDENTIFICATION_NUMBER = CBU_IDENTIFICATION_NUMBER;
+
+        END LOOP;
+
+        COMMIT;
+
+    END SEND_BULK_EMAILS;
+
+END EMAIL_PKG;
