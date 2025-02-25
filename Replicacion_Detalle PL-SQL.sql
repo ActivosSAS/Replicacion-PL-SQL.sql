@@ -22,6 +22,59 @@ SELECT * FROM  RHU.Replication_Config;
 --DROP TABLE RHU.Replication_Detail;
 --DROP TABLE RHU.Replication_Config;
 /
+--**********************************************************************************************************
+--** OBJETIVO             : Crear Colas de Mensajeria.
+--**********************************************************************************************************
+BEGIN
+    dbms_aqadm.create_queue_table (
+            queue_table        => 'queue_sel_masivo',
+            queue_payload_type => 'sys.aq$_jms_text_message'
+    );
+
+    dbms_aqadm.create_queue (
+            queue_name  => 'sq_masivo',
+            queue_table => 'queue_sel_masivo2'
+    );
+
+    dbms_aqadm.start_queue (
+            queue_name => 'sq_masivo'
+    );
+END;
+/
+--**********************************************************************************************************
+--** OBJETIVO             : Probar la cola de mensajeria.
+--**********************************************************************************************************
+BEGIN
+
+    DECLARE
+        l_enqueue_options    dbms_aq.enqueue_options_t;
+        l_message_properties dbms_aq.message_properties_t;
+        l_message            sys.aq$_jms_text_message;
+        l_msgid              RAW(16);
+    BEGIN
+        -- Construcción del mensaje
+        l_message := sys.aq$_jms_text_message.construct;
+        l_message.set_text(xmltype('<idEvento>313</idEvento>').getClobVal());
+        -- Envío del mensaje a la cola AQ
+        dbms_aq.enqueue (
+                queue_name         => 'AQ_ADMIN.sq_masivo',
+                enqueue_options    => l_enqueue_options,
+                message_properties => l_message_properties,
+                payload            => l_message,
+                msgid              => l_msgid
+        );
+
+        -- Confirmación de la transacción
+        COMMIT;
+    END;
+
+END;
+/
+BEGIN
+    DBMS_AQADM.START_QUEUE_TABLE(queue_table => 'QUEUE_SEL_MASIVO2');
+END;
+/
+
 --****************************************************************
 --** NOMBRE SCRIPT        : .SQL
 --** OBJETIVO             : Crear la tabla Replication_Config en el esquema RHU para almacenar la configuración de replicación entre la base de datos local y GCP.
@@ -486,11 +539,27 @@ SELECT * FROM LIBROINGRESO WHERE EPL_ND =1019002843;
 SELECT * FROM REQUISICION;
 UPDATE RHU.OBSERVACION_LINGRESO SET LIB_ESTADO='OK_VALIDADO' WHERE OBS_SECUENCIA = 939050;
 /
+--****************************************************************
+--** OBJETIVO             : Guardar la Ruta en el Servidor donde van los documentos  
+--** ESQUEMA              : PAR
+--** AUTOR                : DESIERRA
+--** FECHA CREACION       : 14/01/2025
+--****************************************************************
+INSERT INTO ADM.RUTA (RTA_NOMBRE,RTA_CODIGO,RTA_RUTA,RTA_REPLACEPATH)
+VALUES ('PRO_MASIVO_HV','TEST','/opt/SGD/reportes_test/hoja_de_vida
+','N');
+/
+--select * from RUTA;
+/
+--SELECT * FROM ADM.RUTA;
+/
+
 --****************************************************************--****************************************************************--****************************************************************
 --DROP TRIGGER TRG_ID_MASTER_AUTO;
 --DROP SEQUENCE RHU.ID_MASTER_SEQ;
 --DROP TABLE RHU.Replication_Master CASCADE CONSTRAINTS;
 -- Crear la tabla RHU.Replication_Master
+SELECT * FROM RHU.Replication_Master;
 --****************************************************************
 -- Crear la tabla RHU.Replication_Master
 CREATE TABLE RHU.Replication_Master (
@@ -505,6 +574,11 @@ CREATE TABLE RHU.Replication_Master (
     OBSERVATION_MASTER VARCHAR2(4000),     -- Additional observations
     MASTER_DATE DATE NOT NULL              -- Date of the operation (must be provided)
 );
+/
+--SELECT * FROM RHU.Replication_Master;
+--DELETE RHU.Replication_Master;
+/
+
 /
 GRANT ALL ON RHU.Replication_Master TO PUBLIC;
 /
@@ -522,9 +596,10 @@ BEGIN
   END IF;
 END;
 /
---DROP TRIGGER PAR.HV_REQUISICION_AUDIT;
+DROP TRIGGER RHU.HV_REPLICATION_MASTER_AUDIT;
+/
 CREATE OR REPLACE TRIGGER RHU.HV_REPLICATION_MASTER_AUDIT
-AFTER INSERT OR UPDATE ON RHU.Replication_Master
+AFTER INSERT ON RHU.Replication_Master
 FOR EACH ROW
 DECLARE
 --****************************************************************
@@ -574,6 +649,7 @@ DROP TABLE RHU.CANDIDATE_BULK_UPLOAD CASCADE CONSTRAINTS;
 --** ESQUEMA              : RHU
 --** AUTOR                : JUFORERO
 --** FECHA CREACION       : 14/01/2025
+SELECT * FROM RHU.CANDIDATE_BULK_UPLOAD;
 --****************************************************************
 -- Crear la tabla con ID como NUMBER sin autoincremento
 CREATE TABLE RHU.CANDIDATE_BULK_UPLOAD (
@@ -608,6 +684,10 @@ BEGIN
   END IF;
 END;
 /
+create or replace PACKAGE     EMAIL_PKG AS
+    PROCEDURE SEND_BULK_EMAILS;
+END EMAIL_PKG;
+/
 CREATE OR REPLACE PACKAGE BODY RHU.EMAIL_PKG AS
     PROCEDURE SEND_BULK_EMAILS IS
     vcDe                 VARCHAR2(200);
@@ -628,27 +708,58 @@ CREATE OR REPLACE PACKAGE BODY RHU.EMAIL_PKG AS
     BEGIN           
         BEGIN
         
-    v_plantilla := '<a href="https://www.activos.com.co/" target="_blank">
-    <img src="https://i.imgur.com/CIwtI0I_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
-    </a>
-    <a href="https://reclutador-qa.partnerdavinci.com/sign-up" target="_blank">
-    <img src="https://i.imgur.com/tHNETIb_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
-    </a>
-    <a href="https://www.activos.com.co/oficinas-activos/" target="_blank">
-    <img src="https://i.imgur.com/G8mvTK7_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
-    </a>
-    <a href="https://www.activos.com.co/" target="_blank">
-    <img src="https://i.imgur.com/Ba9LG5K_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
-    </a>
-    <a href="https://reclutador-qa.partnerdavinci.com/sign-up" target="_blank">
-    <img src="https://i.imgur.com/apc6ahT_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
-    </a>
-    <a href="https://www.activos.com.co/preguntas-frecuentes-activos/" target="_blank">
-    <img src="https://i.imgur.com/8Do66xC_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
-    </a>
-    <a href="http://apps.activos.com.co/SINMAReceiver/SinmaPolicySender?nbeId=8" target="_blank">
-    <img src="https://i.imgur.com/cEmJ6R9_d.webp?maxwidth=760&fidelity=grand" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
-    </a>';
+    v_plantilla := '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
+    <tr>
+        <td align="center">
+            <a href="https://www.activos.com.co/" target="_blank">
+                <img src="https://i.postimg.cc/0QDbn4KN/BANNER.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <a href="https://reclutador-qa.partnerdavinci.com/sign-up" target="_blank">
+                <img src="https://i.postimg.cc/ryhLbJGy/Hola.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <a href="https://www.activos.com.co/oficinas-activos/" target="_blank">
+                <img src="https://i.postimg.cc/MG8kRrw5/VISITANOS.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <a href="https://www.activos.com.co/" target="_blank">
+                <img src="https://i.postimg.cc/sXwbkjhH/PORQUE.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <a href="https://reclutador-qa.partnerdavinci.com/sign-up" target="_blank">
+                <img src="https://i.postimg.cc/SNNcQyz7/TU-PROXIMO.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <a href="https://www.activos.com.co/preguntas-frecuentes-activos/" target="_blank">
+                <img src="https://i.postimg.cc/m2sB7DSC/Equipo.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <a href="http://apps.activos.com.co/SINMAReceiver/SinmaPolicySender?nbeId=8" target="_blank">
+                <img src="https://i.postimg.cc/ncjLpz1D/Tratamiento-Corto.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            </a>
+        </td>
+    </tr>
+</table>
+';
                 vcDe:='sinma@activate.com.co';
         END;
 
