@@ -712,55 +712,54 @@ CREATE OR REPLACE PACKAGE BODY RHU.EMAIL_PKG AS
     <tr>
         <td align="center">
             <a href="https://www.activos.com.co/" target="_blank">
-                <img src="https://i.postimg.cc/0QDbn4KN/BANNER.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+                <img src="https://storage.googleapis.com/bucket_prueba_grupo/BANNER.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
             </a>
         </td>
     </tr>
     <tr>
         <td align="center">
-            <a href="https://reclutador-qa.partnerdavinci.com/sign-up" target="_blank">
-                <img src="https://i.postimg.cc/ryhLbJGy/Hola.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            <a href="http://apps.activos.com.co/JADM0017/outside/Registro.xhtml" target="_blank">
+                <img src="https://storage.googleapis.com/bucket_prueba_grupo/Hola.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
             </a>
         </td>
     </tr>
     <tr>
         <td align="center">
             <a href="https://www.activos.com.co/oficinas-activos/" target="_blank">
-                <img src="https://i.postimg.cc/MG8kRrw5/VISITANOS.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+                <img src="https://storage.googleapis.com/bucket_prueba_grupo/VISITANOS.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
             </a>
         </td>
     </tr>
     <tr>
         <td align="center">
             <a href="https://www.activos.com.co/" target="_blank">
-                <img src="https://i.postimg.cc/sXwbkjhH/PORQUE.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+                <img src="https://storage.googleapis.com/bucket_prueba_grupo/PORQUE%20_.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
             </a>
         </td>
     </tr>
     <tr>
         <td align="center">
-            <a href="https://reclutador-qa.partnerdavinci.com/sign-up" target="_blank">
-                <img src="https://i.postimg.cc/SNNcQyz7/TU-PROXIMO.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            <a href="http://apps.activos.com.co/JADM0017/outside/Registro.xhtml" target="_blank">
+                <img src="https://storage.googleapis.com/bucket_prueba_grupo/TU%20PROXIMO.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
             </a>
         </td>
     </tr>
     <tr>
         <td align="center">
             <a href="https://www.activos.com.co/preguntas-frecuentes-activos/" target="_blank">
-                <img src="https://i.postimg.cc/m2sB7DSC/Equipo.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+                <img src="https://storage.googleapis.com/bucket_prueba_grupo/Equipo.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
             </a>
         </td>
     </tr>
     <tr>
         <td align="center">
-            <a href="http://apps.activos.com.co/SINMAReceiver/SinmaPolicySender?nbeId=8" target="_blank">
-                <img src="https://i.postimg.cc/ncjLpz1D/Tratamiento-Corto.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
+            <a href="https://storage.googleapis.com/bucket_prueba_grupo/POL%C3%8DTICAS%20DE%20MANEJO%20DE%20INFORMACI%C3%93N%20Y%20PRIVACIDAD.pdf" target="_blank">
+                <img src="https://storage.googleapis.com/bucket_prueba_grupo/TRATAMIENTO.jpg" width="100%" style="max-width: 760px; display: block; cursor: pointer;">
             </a>
         </td>
     </tr>
-</table>
-';
-                vcDe:='sinma@activate.com.co';
+</table>';
+        vcDe:='notificacion@activos.com.co';
         END;
 
         FOR rec IN c_candidates LOOP
