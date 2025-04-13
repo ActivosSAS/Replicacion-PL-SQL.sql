@@ -27,17 +27,17 @@ SELECT * FROM  RHU.Replication_Config;
 --**********************************************************************************************************
 BEGIN
     dbms_aqadm.create_queue_table (
-            queue_table        => 'queue_sel_masivo',
-            queue_payload_type => 'sys.aq$_jms_text_message'
+        queue_table        => 'queue_sel_masivo',
+        queue_payload_type => 'sys.aq$_jms_text_message'
     );
 
     dbms_aqadm.create_queue (
-            queue_name  => 'sq_masivo',
-            queue_table => 'queue_sel_masivo2'
+        queue_name  => 'sq_masivo',
+        queue_table => 'queue_sel_masivo'  
     );
 
     dbms_aqadm.start_queue (
-            queue_name => 'sq_masivo'
+        queue_name => 'sq_masivo'
     );
 END;
 /
@@ -71,10 +71,103 @@ BEGIN
 END;
 /
 BEGIN
-    DBMS_AQADM.START_QUEUE_TABLE(queue_table => 'QUEUE_SEL_MASIVO2');
+    dbms_aqadm.start_queue(queue_name => 'SQ_MASIVO');
 END;
 /
+SELECT COUNT(*) FROM AQ_ADMIN.queue_sel_masivo;
+/
+--**********************************************************************************************************
+--** OBJETIVO             : Crear Colas de Mensajeria.
+--**********************************************************************************************************
+BEGIN
+    dbms_aqadm.create_queue_table (
+            queue_table        => 'queue_sel_replication',
+            queue_payload_type => 'sys.aq$_jms_text_message'
+    );
 
+    dbms_aqadm.create_queue (
+            queue_name  => 'sq_replication',
+            queue_table => 'queue_sel_replication'--Begin
+    );
+
+    dbms_aqadm.start_queue (
+            queue_name => 'sq_replication'
+    );
+END;
+/
+SELECT *
+FROM dba_queues 
+WHERE NAME = 'SQ_REPLICATION';
+
+
+/
+--**********************************************************************************************************
+--** OBJETIVO             : Probar la cola de mensajeria.
+--**********************************************************************************************************
+BEGIN
+
+    DECLARE
+        l_enqueue_options    dbms_aq.enqueue_options_t;
+        l_message_properties dbms_aq.message_properties_t;
+        l_message            sys.aq$_jms_text_message;
+        l_msgid              RAW(16);
+    BEGIN
+        -- Construcción del mensaje
+        l_message := sys.aq$_jms_text_message.construct;
+        l_message.set_text(xmltype('<idEvento>313</idEvento>').getClobVal());
+        -- Envío del mensaje a la cola AQ
+        dbms_aq.enqueue (
+                queue_name         => 'AQ_ADMIN.sq_replication',
+                enqueue_options    => l_enqueue_options,
+                message_properties => l_message_properties,
+                payload            => l_message,
+                msgid              => l_msgid
+        );
+
+        -- Confirmación de la transacción
+        COMMIT;
+    END;
+
+END;
+/
+BEGIN
+    dbms_aqadm.start_queue(queue_name => 'SQ_REPLICATION');
+END;
+/
+SELECT COUNT(*) FROM AQ_ADMIN.QUEUE_SEL_REPLICATION;
+/
+--****************************************************************
+--** OBJETIVO             : Dar Privilegios de la Cola de Mensaria a los Esquemas correspondientes
+--** ESQUEMA              : RHU-PAR-SEL-ADM
+--** AUTOR                : JUFORERO
+--** FECHA CREACION       : 14/01/2025
+--****************************************************************
+SET SERVEROUTPUT ON;
+
+BEGIN
+    -- Otorgar privilegios en SQ_REPLICATION para ADM, RHU, SEL y PAR
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('ENQUEUE', 'SQ_REPLICATION', 'ADM');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('DEQUEUE', 'SQ_REPLICATION', 'ADM');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('ENQUEUE', 'SQ_REPLICATION', 'RHU');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('DEQUEUE', 'SQ_REPLICATION', 'RHU');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('ENQUEUE', 'SQ_REPLICATION', 'SEL');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('DEQUEUE', 'SQ_REPLICATION', 'SEL');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('ENQUEUE', 'SQ_REPLICATION', 'PAR');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('DEQUEUE', 'SQ_REPLICATION', 'PAR');
+
+    -- Otorgar privilegios en SQ_MASIVO para ADM, RHU, SEL y PAR
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('ENQUEUE', 'SQ_MASIVO', 'ADM');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('DEQUEUE', 'SQ_MASIVO', 'ADM');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('ENQUEUE', 'SQ_MASIVO', 'RHU');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('DEQUEUE', 'SQ_MASIVO', 'RHU');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('ENQUEUE', 'SQ_MASIVO', 'SEL');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('DEQUEUE', 'SQ_MASIVO', 'SEL');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('ENQUEUE', 'SQ_MASIVO', 'PAR');
+    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE('DEQUEUE', 'SQ_MASIVO', 'PAR');
+
+    DBMS_OUTPUT.PUT_LINE('Privilegios asignados correctamente a ADM, RHU, SEL y PAR.');
+END;
+/
 --****************************************************************
 --** NOMBRE SCRIPT        : .SQL
 --** OBJETIVO             : Crear la tabla Replication_Config en el esquema RHU para almacenar la configuración de replicación entre la base de datos local y GCP.
@@ -82,6 +175,7 @@ END;
 --** AUTOR                : JUFORERO
 --** FECHA CREACION       : 14/01/2025
 --****************************************************************
+--SELECT * FROM RHU.Replication_Config;
 CREATE TABLE RHU.Replication_Config (
     ID_CONFIG VARCHAR2(100),                -- Unique identifier for the configuration
     LOCAL_TABLE_REF VARCHAR2(100),          -- Name of the local database table where information will be reflected
@@ -98,6 +192,7 @@ CREATE TABLE RHU.Replication_Config (
 --** AUTOR                : JUFORERO
 --** FECHA CREACION       : 14/01/2025
 --****************************************************************
+--SELECT * FROM RHU.Replication_Detail;
 CREATE TABLE RHU.Replication_Detail (
     ID_RD NUMBER,                           -- Unique identifier for each record
     DOCUMENT_TYPE VARCHAR2(100),            -- Document type
@@ -195,32 +290,6 @@ VALUES (NULL, 'Observaciones', 'RemarkData', 'Active');
 /
 SELECT * FROM RHU.Replication_Config;
 /
---****************************************************************
---** OBJETIVO             : Dar Privilegios de la Cola de Mensaria a los Esquemas correspondientes
---** ESQUEMA              : RHU-PAR
---** AUTOR                : JUFORERO
---** FECHA CREACION       : 14/01/2025
---****************************************************************
-SET SERVEROUTPUT ON
- 
-BEGIN
-    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE(
-        privilege => 'ENQUEUE',
-        queue_name => 'AQ_ADMIN.my_qu',
-        grantee => 'PAR'
-    );
-END;
-/
-SET SERVEROUTPUT ON
- 
-BEGIN
-    DBMS_AQADM.GRANT_QUEUE_PRIVILEGE(
-        privilege => 'ENQUEUE',
-        queue_name => 'AQ_ADMIN.my_qu',
-        grantee => 'RHU'
-    );
-END;
-/
 --DROP TRIGGER PAR.HV_RESTRICCIONES_AUDIT;
 CREATE OR REPLACE TRIGGER PAR.HV_RESTRICCIONES_AUDIT
 AFTER INSERT OR UPDATE ON PAR.HOJA_VIDA_RESTRICCIONES
@@ -274,11 +343,11 @@ BEGIN
     l_message.set_text(xmltype('<idEvento>'||l_id_rd||'</idEvento>').getClobVal());
 
     -- Envío del mensaje a la cola AQ
-    dbms_aq.enqueue (
-        queue_name         => 'AQ_ADMIN.my_qu',
+    DBMS_AQ.ENQUEUE (
+        queue_name         => 'AQ_ADMIN.SQ_REPLICATION',
         enqueue_options    => l_enqueue_options,
         message_properties => l_message_properties,
-       payload            => l_message,
+        payload            => l_message,
         msgid              => l_msgid
     );
 END;
@@ -294,7 +363,7 @@ INSERT INTO PAR.HOJA_VIDA_RESTRICCIONES (DCM_RADICACION,REST_ITEM,REST_TIPO,REST
 ,CAU_SECUENCIA,TDC_TD_ORG,EMP_ND_ORG,REST_VALOR,REST_FECHA_VIGENCIA,REST_MOTIVO_CLIENTE,PRR_CODIGO) 
 VALUES ('326407','1','RESTRICTIVO','LE CAIGO MAL AL JEFE','S_DEYCI',TO_DATE('14/03/07','DD/MM/RR'),NULL,NULL,'CC','1069760782','3',NULL,NULL,NULL,NULL,NULL,NULL);
 /
-SELECT * FROM PAR.HOJA_VIDA_RESTRICCIONES ;
+SELECT * FROM RHU.Replication_Detail;
 /
 SELECT * FROM PAR.HOJA_VIDA_RESTRICCIONES WHERE EPL_ND='1069760782';
 DELETE FROM PAR.HOJA_VIDA_RESTRICCIONES WHERE EPL_ND='1069760782';
@@ -352,11 +421,11 @@ BEGIN
     l_message := sys.aq$_jms_text_message.construct;
     l_message.set_text(xmltype('<idEvento>'||l_id_rd||'</idEvento>').getClobVal());
     -- Envío del mensaje a la cola AQ
-    dbms_aq.enqueue (
-        queue_name         => 'AQ_ADMIN.my_qu',
+    DBMS_AQ.ENQUEUE (
+        queue_name         => 'AQ_ADMIN.SQ_REPLICATION',
         enqueue_options    => l_enqueue_options,
         message_properties => l_message_properties,
-       payload            => l_message,
+        payload            => l_message,
         msgid              => l_msgid
     );
     END IF;
@@ -412,15 +481,14 @@ BEGIN
     l_message.set_text(xmltype('<idEvento>'||l_id_rd||'</idEvento>').getClobVal());
 
     -- Envío del mensaje a la cola AQ
-    dbms_aq.enqueue (
-        queue_name         => 'AQ_ADMIN.my_qu',
+    DBMS_AQ.ENQUEUE (
+        queue_name         => 'AQ_ADMIN.SQ_REPLICATION',
         enqueue_options    => l_enqueue_options,
         message_properties => l_message_properties,
-       payload            => l_message,
+        payload            => l_message,
         msgid              => l_msgid
     );
     END IF;
-
 END;
 /
 --****************************************************************
@@ -517,13 +585,13 @@ BEGIN
         l_message.set_text(xmltype('<idEvento>' || l_id_rd || '</idEvento>').getClobVal());
 
         -- Envío del mensaje a la cola AQ
-        dbms_aq.enqueue(
-            queue_name         => 'AQ_ADMIN.my_qu',
-            enqueue_options    => l_enqueue_options,
-            message_properties => l_message_properties,
-            payload            => l_message,
-            msgid              => l_msgid
-        );
+        DBMS_AQ.ENQUEUE (
+        queue_name         => 'AQ_ADMIN.SQ_REPLICATION',
+        enqueue_options    => l_enqueue_options,
+        message_properties => l_message_properties,
+        payload            => l_message,
+        msgid              => l_msgid
+    );
     END IF;
 END;
 /
@@ -632,11 +700,95 @@ BEGIN
     
 END;
 /
--- Eliminar el trigger
-DROP TRIGGER RHU.TRG_CBU_ID_AUTO;
-/
--- Eliminar la secuencia
-DROP SEQUENCE RHU.CBU_ID_SEQ;
+CREATE OR REPLACE TRIGGER RHU.HV_EMPLEADO_AUDIT
+AFTER INSERT OR UPDATE ON RHU.EMPLEADO
+FOR EACH ROW
+DECLARE
+--****************************************************************
+--** NOMBRE SCRIPT        : HV_EMPLEADO_AUDIT.SQL
+--** OBJETIVO             : Crear el trigger RHU.HV_EMPLEADO_AUDIT en el esquema RHU para auditar las operaciones de inserción o actualización en la tabla RHU.EMPLEADO, 
+--**                        generando un registro en RHU.Replication_Detail con los detalles en formato JSON y marcándolo como pendiente de replicación.
+--** ESQUEMA              : RHU
+--** AUTOR                : JUFORERO
+--** FECHA CREACION       : 14/01/2025
+--****************************************************************
+    l_enqueue_options    dbms_aq.enqueue_options_t;
+    l_message_properties dbms_aq.message_properties_t;
+    l_message            sys.aq$_jms_text_message;
+    l_msgid              RAW(16);
+    l_id_rd              NUMBER; 
+BEGIN
+    IF :NEW.FUENTE IN ('COMPUTRABAJO_MASIVO') THEN
+    -- Inserción en la tabla RHU.Replication_Detail
+    INSERT INTO RHU.Replication_Detail (
+    ID_RD,
+    DOCUMENT_TYPE,
+    DOCUMENT_NUMBER,
+    ID_CONFIG,
+    STATE_RD,
+    DATA_JSON,
+    DATE_RD,
+    USER_RD
+        ) VALUES (
+    NULL,                                   
+    :NEW.TDC_TD,                        
+    :NEW.EPL_ND,                            
+    (SELECT ID_CONFIG FROM RHU.Replication_Config WHERE LOCAL_TABLE_REF = 'RHU.EMPLEADO' AND GCP_TABLE_REF = 'EmployeeData'), -- Ajuste a tabla RHU.EMPLEADO
+    'PENDING',                             
+    '{
+        "address": "'|| :NEW.EPL_DIRECCION ||'",
+        "birthCountry": "'|| :NEW.PAI_NOMBRE_NAC ||'",
+        "birthDate": "'|| TO_CHAR(:NEW.EPL_FECNACIM, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') ||'",
+        "birthDepartment": "'|| :NEW.DPT_NOMBRE_NAC ||'",
+        "birthMunicipality": "'|| :NEW.CIU_NOMBRE_NAC ||'",
+        "bloodGroup": "'|| :NEW.GRUPO_SANGUINEO || :NEW.FACTOR_RH ||'",
+        "cellphoneOne": {
+            "hasWhatsapp": false,
+            "number": NULL
+        },
+        "cellphoneTwo": {
+            "hasWhatsapp": false,
+            "number": NULL
+        },
+        "documentType": "'|| :NEW.TDC_TD ||'",
+        "lastName": "'|| :NEW.EPL_APELL1 ||' '|| :NEW.EPL_APELL2 ||'",
+        "locality": "'|| DECODE(:NEW.ZON_NOMBRE, 'NO APLICA', 'N.N.', :NEW.ZON_NOMBRE) ||'",
+        "mailOne": {
+            "address": "'|| :NEW.EPL_EMAIL ||'",
+            "isNotification": true
+        },
+        "mailTwo": NULL,
+        "name": "'|| :NEW.EPL_NOM1 ||' '|| :NEW.EPL_NOM2 ||'",
+        "neighborhood": "'|| :NEW.BAR_NOMBRE ||'",
+        "noDocument": "'|| :NEW.EPL_ND ||'",
+        "originNacionality": "Colombiano/a",
+        "residenceCountry": "'|| :NEW.PAI_NOMBRE_RES ||'",
+        "residenceDepartment": "'|| :NEW.DPT_NOMBRE_RES ||'",
+        "residenceDetails": "'|| :NEW.EPL_DIRECCION ||'",
+        "residenceMunicipality": "'|| :NEW.CIU_NOMBRE_RES ||'",
+        "sex": "'|| :NEW.EPL_SEXO ||'",
+        "sexBirth": "'|| :NEW.EPL_SEXO ||'"
+        }',                                  
+    TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), 
+    USER                                   
+    )
+    RETURNING ID_RD INTO l_id_rd;              
+
+    -- Construcción del mensaje de la cola AQ
+    l_message := sys.aq$_jms_text_message.construct;
+    l_message.set_text(xmltype('<idEvento>'||l_id_rd||'</idEvento>').getClobVal());
+
+    -- Envío del mensaje a la cola AQ
+    DBMS_AQ.ENQUEUE (
+        queue_name         => 'AQ_ADMIN.SQ_MASIVO',
+        enqueue_options    => l_enqueue_options,
+        message_properties => l_message_properties,
+        payload            => l_message,
+        msgid              => l_msgid
+    );
+    END IF;
+END;
+
 /
 -- Eliminar la tabla
 DROP TABLE RHU.CANDIDATE_BULK_UPLOAD CASCADE CONSTRAINTS;
@@ -801,3 +953,112 @@ CREATE OR REPLACE PACKAGE BODY RHU.EMAIL_PKG AS
     END SEND_BULK_EMAILS;
 
 END EMAIL_PKG;
+/
+CREATE OR REPLACE TRIGGER PAR.REQ_OKVAL_DOCS_REPLICATE
+AFTER INSERT OR UPDATE ON PAR.REQUISICION_HOJA_VIDA
+FOR EACH ROW
+DECLARE
+    --****************************************************************
+    --** OBJETIVO : Validar documentos obligatorios cuando el estado sea OK_VALIDADO y replicar si todo está bien.
+    --****************************************************************
+
+    TYPE t_tpd_list IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+    v_tpd_encontrados t_tpd_list;
+    v_tpd_obligatorios CONSTANT SYS.OdciNumberList := SYS.OdciNumberList(23, 25, 26, 27);
+    v_tpd_codigo NUMBER;
+
+    l_enqueue_options    dbms_aq.enqueue_options_t;
+    l_message_properties dbms_aq.message_properties_t;
+    l_message            sys.aq$_jms_text_message;
+    l_msgid              RAW(16);
+    l_id_rd              NUMBER; 
+
+    CURSOR c_documentos IS
+        SELECT TO_NUMBER(adm.QB_LGC_GESTOR_DOCUMENTAL.fl_rtn_tipo_document(prd.tpd_codigo, 'TPD_CODIGO')) AS tpd_codigo
+          FROM ADM.taxonomia_param txp,
+               ADM.data_erp_az dea,
+               ADM.propiedades_documento prd
+         WHERE dea.txp_codigo = txp.txp_codigo
+           AND dea.prd_codigo = prd.prd_codigo
+           AND (txp.txp_descripcion LIKE 'BHV ' || :NEW.TDC_TD_EPL || ' ' || :NEW.EPL_ND)
+           AND dea.prd_codigo IS NOT NULL
+           AND dea.dea_estado <> 2
+        UNION
+        SELECT TO_NUMBER(adm.QB_LGC_GESTOR_DOCUMENTAL.fl_rtn_tipo_document(prd.tpd_codigo, 'TPD_CODIGO')) AS tpd_codigo
+          FROM ADM.taxonomia_param txp,
+               ADM.data_erp_az dea,
+               ADM.propiedades_documento prd
+         WHERE dea.txp_codigo = txp.txp_codigo
+           AND dea.prd_codigo = prd.prd_codigo
+           AND dea.txp_codigo IN (
+               SELECT txp_codigo
+                 FROM adm.taxonomia_param
+                WHERE txp_codigo_ref IN (
+                      SELECT txp_codigo
+                        FROM adm.taxonomia_param
+                       WHERE txp_descripcion = 'SEL ' || :NEW.TDC_TD_EPL || ' ' || :NEW.EPL_ND
+                 )
+           )
+           AND dea.prd_codigo IS NOT NULL
+           AND dea.dea_estado <> 2;
+
+BEGIN
+    IF :NEW.STDO_ESTADO = 'OK_VALIDADO' THEN
+        -- Recorre documentos y registra los encontrados
+        FOR r_doc IN c_documentos LOOP
+            v_tpd_codigo := r_doc.tpd_codigo;
+            v_tpd_encontrados(v_tpd_codigo) := 1;
+        END LOOP;
+
+        -- Valida presencia de documentos obligatorios
+        FOR i IN 1 .. v_tpd_obligatorios.COUNT LOOP
+            IF v_tpd_encontrados.EXISTS(v_tpd_obligatorios(i)) = FALSE THEN
+                -- Si falta algún documento obligatorio, termina sin error
+                RETURN;
+            END IF;
+        END LOOP;
+
+        -- Inserta en tabla de replicación
+        INSERT INTO RHU.Replication_Detail (
+            ID_RD,
+            DOCUMENT_TYPE,
+            DOCUMENT_NUMBER,
+            ID_CONFIG,
+            STATE_RD,
+            DATA_JSON,
+            DATE_RD,
+            USER_RD
+        ) VALUES (
+            NULL,
+            :NEW.TDC_TD_EPL,
+            :NEW.EPL_ND,
+            (SELECT ID_CONFIG 
+               FROM RHU.Replication_Config 
+              WHERE LOCAL_TABLE_REF = 'PAR.REQUISICION_HOJA_VIDA' 
+                AND GCP_TABLE_REF = 'RequisitionData'),
+            'PENDING',
+            '{
+                "Tipo_Documento": "' || :NEW.TDC_TD_EPL || '",
+                "Numero_Documento": "' || :NEW.EPL_ND || '",
+                "requisitionNumber": "' || :NEW.REQ_CONSECUTIVO || '",
+                "updateDate": "' || TO_CHAR(:NEW.RQHV_FECHA_GRABA, 'YYYY-MM-DD') || '"
+            }',
+            TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'),
+            USER
+        )
+        RETURNING ID_RD INTO l_id_rd;
+
+        -- Encola el ID en la cola AQ
+        l_message := sys.aq$_jms_text_message.construct;
+        l_message.set_text(xmltype('<idEvento>' || l_id_rd || '</idEvento>').getClobVal());
+
+        DBMS_AQ.ENQUEUE (
+            queue_name         => 'AQ_ADMIN.SQ_REPLICATION',
+            enqueue_options    => l_enqueue_options,
+            message_properties => l_message_properties,
+            payload            => l_message,
+            msgid              => l_msgid
+        );
+    END IF;
+END;
+
