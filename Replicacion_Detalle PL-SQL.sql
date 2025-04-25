@@ -10,6 +10,7 @@
 --Trigger RHU.OBSERVACION_LINGRESO_AUDIT alterado.
 
 SELECT * FROM RHU.Replication_Detail ORDER BY ID_RD DESC;
+--DELETE FROM RHU.Replication_Detail WHERE ID_RD=108;
 SELECT * FROM  RHU.Replication_Config;
  --DROP TRIGGER RHU.Replication_Detail_BI;
 --DROP TRIGGER RHU.Replication_Config_BI;
@@ -168,6 +169,42 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Privilegios asignados correctamente a ADM, RHU, SEL y PAR.');
 END;
 /
+BEGIN
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_MASIVO', 'ADM', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_MASIVO', 'RHU', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_MASIVO', 'SEL', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_MASIVO', 'PAR', FALSE);
+END;
+/
+BEGIN
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_REPLICATION', 'ADM', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_REPLICATION', 'RHU', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_REPLICATION', 'SEL', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_REPLICATION', 'PAR', FALSE);
+END;
+/
+BEGIN
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_MASIVO', 'AQ_ADMIN', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_MASIVO', 'INTRAUSER', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_MASIVO', 'JUFORERO', FALSE);
+END;
+/
+BEGIN
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_REPLICATION', 'AQ_ADMIN', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_REPLICATION', 'JUFORERO', FALSE);
+    dbms_aqadm.grant_queue_privilege('ALL', 'AQ_ADMIN.SQ_REPLICATION', 'INTRAUSER', FALSE);
+END;
+/
+GRANT EXECUTE ON DBMS_AQADM TO ADM;
+GRANT EXECUTE ON DBMS_AQADM TO RHU;
+GRANT EXECUTE ON DBMS_AQADM TO SEL;
+GRANT EXECUTE ON DBMS_AQADM TO PAR;
+/
+GRANT EXECUTE ON SYS.DBMS_AQADM TO JUFORERO;
+GRANT EXECUTE ON SYS.DBMS_AQADM TO aq_admin;
+GRANT EXECUTE ON SYS.DBMS_AQADM TO intrauser;
+
+/
 --****************************************************************
 --** NOMBRE SCRIPT        : .SQL
 --** OBJETIVO             : Crear la tabla Replication_Config en el esquema RHU para almacenar la configuración de replicación entre la base de datos local y GCP.
@@ -282,11 +319,14 @@ VALUES (NULL, 'PAR.REQUISICION_HOJA_VIDA', 'RequisitionData', 'Active');
 INSERT INTO RHU.Replication_Config (ID_CONFIG, LOCAL_TABLE_REF, GCP_TABLE_REF, STATUS_RC) 
 VALUES (NULL, 'RHU.CONTRATO', 'AgreementData', 'Active');
 --UPDATE RHU.Replication_Config SET LOCAL_TABLE_REF = 'RHU.CONTRATO' WHERE ID_CONFIG = '3'; 
-INSERT INTO RHU.Replication_Config (ID_CONFIG, LOCAL_TABLE_REF, GCP_TABLE_REF, STATUS_RC) 
-VALUES (NULL, 'RHU.OBSERVACION_LINGRESO', 'UserDocumentaryReview', 'Active');
+--INSERT INTO RHU.Replication_Config (ID_CONFIG, LOCAL_TABLE_REF, GCP_TABLE_REF, STATUS_RC) **********Pendiente por Validar
+--VALUES (NULL, 'RHU.OBSERVACION_LINGRESO', 'UserDocumentaryReview', 'Active');
 --UPDATE RHU.Replication_Config SET LOCAL_TABLE_REF = 'RHU.OBSERVACION_LINGRESO' WHERE ID_CONFIG = '4'; 
 INSERT INTO RHU.Replication_Config (ID_CONFIG, LOCAL_TABLE_REF, GCP_TABLE_REF, STATUS_RC) 
 VALUES (NULL, 'Observaciones', 'RemarkData', 'Active');
+INSERT INTO RHU.Replication_Config (ID_CONFIG, LOCAL_TABLE_REF, GCP_TABLE_REF, STATUS_RC) 
+VALUES (NULL, 'PAR.REQUISICION_HOJA_VIDA', 'UserDocumentaryReview', 'Active');
+--UPDATE RHU.Replication_Config SET LOCAL_TABLE_REF = 'PAR.REQUISICION_HOJA_VIDA' WHERE ID_CONFIG = '11'; 
 /
 SELECT * FROM RHU.Replication_Config;
 /
@@ -700,13 +740,13 @@ BEGIN
     
 END;
 /
-CREATE OR REPLACE TRIGGER RHU.HV_EMPLEADO_AUDIT
+CREATE OR REPLACE TRIGGER RHU.HV_EMPLEADO_MASV
 AFTER INSERT OR UPDATE ON RHU.EMPLEADO
 FOR EACH ROW
 DECLARE
 --****************************************************************
---** NOMBRE SCRIPT        : HV_EMPLEADO_AUDIT.SQL
---** OBJETIVO             : Crear el trigger RHU.HV_EMPLEADO_AUDIT en el esquema RHU para auditar las operaciones de inserción o actualización en la tabla RHU.EMPLEADO, 
+--** NOMBRE SCRIPT        : drhu0467.sql
+--** OBJETIVO             : trigger encargador para Replicar las operaciones de inserción o actualización de la tabla RHU.EMPLEADO a GCP, 
 --**                        generando un registro en RHU.Replication_Detail con los detalles en formato JSON y marcándolo como pendiente de replicación.
 --** ESQUEMA              : RHU
 --** AUTOR                : JUFORERO
@@ -788,7 +828,95 @@ BEGIN
     );
     END IF;
 END;
+/
+CREATE OR REPLACE TRIGGER RHU.HV_EMPLEADO_REPL
+AFTER INSERT OR UPDATE ON RHU.EMPLEADO
+FOR EACH ROW
+DECLARE
+--****************************************************************
+--** NOMBRE SCRIPT        : .sql
+--** OBJETIVO             : trigger encargador para Replicar las operaciones de inserción o actualización de la tabla RHU.EMPLEADO a GCP, 
+--**                        generando un registro en RHU.Replication_Detail con los detalles en formato JSON y marcándolo como pendiente de replicación.
+--** ESQUEMA              : RHU
+--** AUTOR                : JUFORERO
+--** FECHA CREACION       : 14/01/2025
+--****************************************************************
+    l_enqueue_options    dbms_aq.enqueue_options_t;
+    l_message_properties dbms_aq.message_properties_t;
+    l_message            sys.aq$_jms_text_message;
+    l_msgid              RAW(16);
+    l_id_rd              NUMBER; 
+BEGIN
+    IF :NEW.FUENTE IN ('CONTRATO') THEN
+    -- Inserción en la tabla RHU.Replication_Detail
+    INSERT INTO RHU.Replication_Detail (
+    ID_RD,
+    DOCUMENT_TYPE,
+    DOCUMENT_NUMBER,
+    ID_CONFIG,
+    STATE_RD,
+    DATA_JSON,
+    DATE_RD,
+    USER_RD
+        ) VALUES (
+    NULL,                                   
+    :NEW.TDC_TD,                        
+    :NEW.EPL_ND,                            
+    (SELECT ID_CONFIG FROM RHU.Replication_Config WHERE LOCAL_TABLE_REF = 'RHU.EMPLEADO' AND GCP_TABLE_REF = 'EmployeeData'), -- Ajuste a tabla RHU.EMPLEADO
+    'PENDING',                             
+    '{
+        "address": "'|| :NEW.EPL_DIRECCION ||'",
+        "birthCountry": "'|| :NEW.PAI_NOMBRE_NAC ||'",
+        "birthDate": "'|| TO_CHAR(:NEW.EPL_FECNACIM, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') ||'",
+        "birthDepartment": "'|| :NEW.DPT_NOMBRE_NAC ||'",
+        "birthMunicipality": "'|| :NEW.CIU_NOMBRE_NAC ||'",
+        "bloodGroup": "'|| :NEW.GRUPO_SANGUINEO || :NEW.FACTOR_RH ||'",
+        "cellphoneOne": {
+            "hasWhatsapp": false,
+            "number": NULL
+        },
+        "cellphoneTwo": {
+            "hasWhatsapp": false,
+            "number": NULL
+        },
+        "documentType": "'|| :NEW.TDC_TD ||'",
+        "lastName": "'|| :NEW.EPL_APELL1 ||' '|| :NEW.EPL_APELL2 ||'",
+        "locality": "'|| DECODE(:NEW.ZON_NOMBRE, 'NO APLICA', 'N.N.', :NEW.ZON_NOMBRE) ||'",
+        "mailOne": {
+            "address": "'|| :NEW.EPL_EMAIL ||'",
+            "isNotification": true
+        },
+        "mailTwo": NULL,
+        "name": "'|| :NEW.EPL_NOM1 ||' '|| :NEW.EPL_NOM2 ||'",
+        "neighborhood": "'|| :NEW.BAR_NOMBRE ||'",
+        "noDocument": "'|| :NEW.EPL_ND ||'",
+        "originNacionality": "Colombiano/a",
+        "residenceCountry": "'|| :NEW.PAI_NOMBRE_RES ||'",
+        "residenceDepartment": "'|| :NEW.DPT_NOMBRE_RES ||'",
+        "residenceDetails": "'|| :NEW.EPL_DIRECCION ||'",
+        "residenceMunicipality": "'|| :NEW.CIU_NOMBRE_RES ||'",
+        "sex": "'|| :NEW.EPL_SEXO ||'",
+        "sexBirth": "'|| :NEW.EPL_SEXO ||'"
+        }',                                  
+    TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), 
+    USER                                   
+    )
+    RETURNING ID_RD INTO l_id_rd;              
 
+    -- Construcción del mensaje de la cola AQ
+    l_message := sys.aq$_jms_text_message.construct;
+    l_message.set_text(xmltype('<idEvento>'||l_id_rd||'</idEvento>').getClobVal());
+
+    -- Envío del mensaje a la cola AQ
+    DBMS_AQ.ENQUEUE (
+        queue_name         => 'AQ_ADMIN.SQ_REPLICATION',
+        enqueue_options    => l_enqueue_options,
+        message_properties => l_message_properties,
+        payload            => l_message,
+        msgid              => l_msgid
+    );
+    END IF;
+END;
 /
 -- Eliminar la tabla
 DROP TABLE RHU.CANDIDATE_BULK_UPLOAD CASCADE CONSTRAINTS;
@@ -836,7 +964,7 @@ BEGIN
   END IF;
 END;
 /
-create or replace PACKAGE     EMAIL_PKG AS
+create or replace PACKAGE  RHU.EMAIL_PKG AS
     PROCEDURE SEND_BULK_EMAILS;
 END EMAIL_PKG;
 /
@@ -954,18 +1082,33 @@ CREATE OR REPLACE PACKAGE BODY RHU.EMAIL_PKG AS
 
 END EMAIL_PKG;
 /
+DROP TABLE ADM.REQUIRED_DOCUMENTS;
+
+CREATE TABLE RHU.REQUIRED_DOCUMENTS (
+    DOCUMENT_CODE NUMBER PRIMARY KEY,
+    DOCUMENT_NAME VARCHAR2(100)
+);
+GRANT ALL ON RHU.REQUIRED_DOCUMENTS TO PUBLIC;
+
+/
+INSERT INTO RHU.REQUIRED_DOCUMENTS (DOCUMENT_CODE, DOCUMENT_NAME) VALUES (23, 'DOCUMENTO DE IDENTIDAD');
+INSERT INTO RHU.REQUIRED_DOCUMENTS (DOCUMENT_CODE, DOCUMENT_NAME) VALUES (25, 'CERTIFICADO ANTECEDENTES JUDICIALES POLICIA');
+INSERT INTO RHU.REQUIRED_DOCUMENTS (DOCUMENT_CODE, DOCUMENT_NAME) VALUES (26, 'CERTIFICADO ANTECEDENTES JUDICIALES PROCURADURIA');
+INSERT INTO RHU.REQUIRED_DOCUMENTS (DOCUMENT_CODE, DOCUMENT_NAME) VALUES (27, 'CERTIFICADO ANTECEDENTES JUDICIALES CONTRALORIA');
+
+/
 CREATE OR REPLACE TRIGGER PAR.REQ_OKVAL_DOCS_REPLICATE
 AFTER INSERT OR UPDATE ON PAR.REQUISICION_HOJA_VIDA
 FOR EACH ROW
 DECLARE
     --****************************************************************
-    --** OBJETIVO : Validar documentos obligatorios cuando el estado sea OK_VALIDADO y replicar si todo está bien.
+    --** PURPOSE: Validate required documents when status is OK_VALIDATED and replicate if everything is valid.
     --****************************************************************
 
     TYPE t_tpd_list IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
-    v_tpd_encontrados t_tpd_list;
-    v_tpd_obligatorios CONSTANT SYS.OdciNumberList := SYS.OdciNumberList(23, 25, 26, 27);
-    v_tpd_codigo NUMBER;
+    v_tpd_found t_tpd_list;
+    v_tpd_required t_tpd_list;
+    v_tpd_code NUMBER;
 
     l_enqueue_options    dbms_aq.enqueue_options_t;
     l_message_properties dbms_aq.message_properties_t;
@@ -973,7 +1116,7 @@ DECLARE
     l_msgid              RAW(16);
     l_id_rd              NUMBER; 
 
-    CURSOR c_documentos IS
+    CURSOR c_documents IS
         SELECT TO_NUMBER(adm.QB_LGC_GESTOR_DOCUMENTAL.fl_rtn_tipo_document(prd.tpd_codigo, 'TPD_CODIGO')) AS tpd_codigo
           FROM ADM.taxonomia_param txp,
                ADM.data_erp_az dea,
@@ -1003,22 +1146,31 @@ DECLARE
            AND dea.dea_estado <> 2;
 
 BEGIN
+    -- Load required document codes dynamically from RHU.REQUIRED_DOCUMENTS
+    DECLARE
+        v_idx PLS_INTEGER := 1;
+    BEGIN
+        FOR r IN (SELECT DOCUMENT_CODE FROM RHU.REQUIRED_DOCUMENTS) LOOP
+            v_tpd_required(v_idx) := r.DOCUMENT_CODE;
+            v_idx := v_idx + 1;
+        END LOOP;
+    END;
+
     IF :NEW.STDO_ESTADO = 'OK_VALIDADO' THEN
-        -- Recorre documentos y registra los encontrados
-        FOR r_doc IN c_documentos LOOP
-            v_tpd_codigo := r_doc.tpd_codigo;
-            v_tpd_encontrados(v_tpd_codigo) := 1;
+        -- Store found documents
+        FOR r_doc IN c_documents LOOP
+            v_tpd_code := r_doc.tpd_codigo;
+            v_tpd_found(v_tpd_code) := 1;
         END LOOP;
 
-        -- Valida presencia de documentos obligatorios
-        FOR i IN 1 .. v_tpd_obligatorios.COUNT LOOP
-            IF v_tpd_encontrados.EXISTS(v_tpd_obligatorios(i)) = FALSE THEN
-                -- Si falta algún documento obligatorio, termina sin error
-                RETURN;
+        -- Validate that all required documents are present
+        FOR i IN 1 .. v_tpd_required.COUNT LOOP
+            IF v_tpd_found.EXISTS(v_tpd_required(i)) = FALSE THEN
+                RETURN; -- Exit silently if any required document is missing
             END IF;
         END LOOP;
 
-        -- Inserta en tabla de replicación
+        -- Insert into replication table
         INSERT INTO RHU.Replication_Detail (
             ID_RD,
             DOCUMENT_TYPE,
@@ -1035,7 +1187,7 @@ BEGIN
             (SELECT ID_CONFIG 
                FROM RHU.Replication_Config 
               WHERE LOCAL_TABLE_REF = 'PAR.REQUISICION_HOJA_VIDA' 
-                AND GCP_TABLE_REF = 'RequisitionData'),
+                AND GCP_TABLE_REF = 'UserDocumentaryReview'),
             'PENDING',
             '{
                 "Tipo_Documento": "' || :NEW.TDC_TD_EPL || '",
@@ -1048,7 +1200,7 @@ BEGIN
         )
         RETURNING ID_RD INTO l_id_rd;
 
-        -- Encola el ID en la cola AQ
+        -- Enqueue message into AQ
         l_message := sys.aq$_jms_text_message.construct;
         l_message.set_text(xmltype('<idEvento>' || l_id_rd || '</idEvento>').getClobVal());
 
@@ -1061,4 +1213,6 @@ BEGIN
         );
     END IF;
 END;
-
+/
+SELECT * FROM PAR.REQUISICION_HOJA_VIDA ORDER BY REQ_CONSECUTIVO DESC;
+SELECT COUNT(*) FROM AQ_ADMIN.QUEUE_SEL_REPLICATION;
