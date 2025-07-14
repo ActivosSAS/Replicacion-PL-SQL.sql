@@ -111,9 +111,26 @@ commit;
 /
 ALTER TRIGGER RHU.DB_VALIDA_NOMBRES DISABLE;
 /
+SELECT trigger_name,
+       table_name,
+       status
+FROM all_triggers
+WHERE owner = 'RHU'
+  AND trigger_name = 'DB_VALIDA_NOMBRES';
+
+/
 ALTER TRIGGER RHU.DB_LIMPIAR_NOMBRES DISABLE;
 /
+SELECT trigger_name,
+       table_name,
+       status
+FROM all_triggers
+WHERE owner = 'RHU'
+  AND trigger_name = 'DB_LIMPIAR_NOMBRES';
+/
 ALTER TABLE rhu.tsel_emp_dat MODIFY (RAZA VARCHAR2(4000 BYTE));
+/
+SELECT * FROM rhu.tsel_emp_dat;
 /
 INSERT INTO adm.propiedades_documento (
     PRD_CODIGO, 

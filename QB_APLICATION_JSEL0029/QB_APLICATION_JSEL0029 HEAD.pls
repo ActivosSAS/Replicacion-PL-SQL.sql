@@ -1,4 +1,4 @@
-create or replace PACKAGE     QB_APLICATION_JSEL0029 as
+create or replace PACKAGE         SEL.QB_APLICATION_JSEL0029 as
   --**********************************************************************************************************
     --** nombre script        : QSEL0008
     --** objetivo             : contiene la logica de nogocio del portlet datos basicos hoja de vida
@@ -15,6 +15,18 @@ create or replace PACKAGE     QB_APLICATION_JSEL0029 as
     --** ACTUALIZACION		  : JUFORERO 05/12/2023
     --** DESCRIPCION          : Se crean PL de cargar datos Adicionales para BHV
     --****************************************************************************** 
+    --****************************************************************
+    --** MODIFICACIÓN         : Se implementa inserción condicional en la tabla RHU.CANDIDATE_BULK_UPLOAD cuando la fuente es 
+    --**                        'COMPUTRABAJO_MASIVO' y se recibe un identificador válido (vcedfciunombreteletiqueta).
+    --** AUTOR MODIFICACIÓN   : JUFORERO
+    --** FECHA MODIFICACIÓN   : 13/04/2025
+    --****************************************************************
+    --****************************************************************
+    --** MODIFICACIÓN         : Se implementa una validacion cuando llega por replicacion cuando la fuente es 
+    --**                        'COMPUTRABAJO_MASIVO', se valida Zona, Ciudad, Barrio
+    --** AUTOR MODIFICACIÓN   : JUFORERO
+    --** FECHA MODIFICACIÓN   : 07/05/2025
+    --****************************************************************    
     type refcursor is ref cursor;
 
 
