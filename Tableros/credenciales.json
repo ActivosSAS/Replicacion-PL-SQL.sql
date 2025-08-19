@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "dashboard-replicacion-462717",
+  "private_key_id": "eb21b32b756870edd4dab0b2bd181e199a6fa46b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC/XsCM+BOAc2IA\nfjhE8ZyeUF6t0uu1XkdKClUwa2sP9nLoI0vfAn+w3ubpG7K2GzkXzD87AaZfukQu\nGYw08/nTiJ0xfg23Dy35He0/LutEVOxtPdeQeDWHDxeX/0B3b0c3Cpu1lZ45F6Yk\nrRDJu4P4JErX1Osb5OcmPJEF0nM0POMhqU7SE0eJ9EpOrHSAUfXjNq6PprgwFhRu\nLYyUq3yMsGRQD53Z1IFfEEIaC6nt3Zy/zo+A9zDE6p9iEgsWP1l+rnpynXJV21hA\nBgPPGLdGyLMVARVYz6IrY7QQmYAvlIViWSK2WzAzI03D1s7Bc73grvKZJ6+s1Dcj\nvV25/35zAgMBAAECggEAPrykaVKGqiypazn13nxK+QemElw8U8glnNtIVEhS3/fO\ncdXocKLUE7rvfmpLKzI/hFK8Q+7liSp6YZaUhWOaekOmLOyDOIksbCfoeDc8f7lL\njQCiI8WU3sMO3BCdJMqBUUUUCPKU3WioWgu2njvwJrBXLOyrawie0sU2Ue9NP0lJ\nNPzPSoQ9BnCkbXxJgxhpSUXAFjiGztC4XSusuaSV608Azv2bNZ5g7sPT6UVzE6/R\nSm8CtV5JnrXWhM18JHDidguOfie2caqynEEfIjemhDphWdzV4+0b3Ix4bl0X6oKd\nwkZMjM57Z9JFOxSyMWm52DG0DhuPFMrxzpRijdsc6QKBgQDuLPxf1UenSJzE7JRz\nOyi2z8C32dpa7rvcQmLuha3rMHLvxfw1zyiBgMU6wZIbUX0FB49D5A2E7WszuXoW\nDn2BBZN1m7OZm56hX6q64NR2HL74XWhgPUpByXjtISFwcEqlqg6lbT+I37kuFKfs\nrkvSEFSD5G1OS1vtw4BOubfsTwKBgQDNsQ5ZgZvc8ZKumL2dmB3EdaRw487Oe3Hw\nzL4kspJiEd2hji5/2INu6sh9F2CXI/yKTNPLPrjzJJWOcY6LcyY+uBDTLhVRfxBs\nA2D5zBicrNJK46gzRPlsCitAPzlDvQSwxmLVnMPPw0FcZoM9druk0tM6B92ZiIcj\nSdXh7DTOnQKBgQDNWB2yphhj4pe+tFX8zzl3+8AlAn9evMtcyCOxj7F1v0yo6uJa\npiM/G/1vfepxAR2vk2fyWZFKVMODUdsvXwjXjy4mTLpYqjHm4as5+ZNTzc7cJPRT\nXSRDeed3UoQZA8dn8ykzePA5GuH2F7r7tP4LuyaSnAOdaB127YIW3cnzwwKBgQCD\nZ7WPIOn+AKaAvDuGzoNV2wIuzJp19w8XkvV2ZE54MImyiC7UpfFxjrR+lcyzQd44\nTFSR54QocRrKYWl7VRj9wIGfKDWeVtqa5p2xd93RWecOyNnPxyTBDM4MwVdIGx1A\nAb1qUjgWJts+uI7nWU8PQVCIJjY/u6T5ulXVex1RUQKBgEDunKfQvTl656Q5j+iY\n1VLmz48EYS9P1ceJpnj/AX6laAcaaDtuB6MmJ3Me9QOdqpLX9fK2uvWWos0lZ0NE\nMJTb6QxMi1MsfpOfyA9ico3K0IpFh63aLlnFr8v8CJ8dYoR7GPsxD2cp1MdWF7od\nZ+cNg8puT4gAxm78iA2Vd5Fv\n-----END PRIVATE KEY-----\n",
+  "client_email": "cuenta-python-replicacion@dashboard-replicacion-462717.iam.gserviceaccount.com",
+  "client_id": "110971145868911037823",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/cuenta-python-replicacion%40dashboard-replicacion-462717.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

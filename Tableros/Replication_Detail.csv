@@ -1,0 +1,214 @@
+"ID_RD","DOCUMENT_TYPE","DOCUMENT_NUMBER","ID_CONFIG","STATE_RD","DATA_JSON","DATE_RD","USER_RD","DESCRIPTION_RD"
+9856,"CC","1073704700","7","PENDING","{
+    ""document_type"": ""CC"",
+    ""document_number"": ""1073704700"",
+    ""requisitionNumber"": ""343637"",
+    ""deliveryDate"": ""2025-02-26"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""DISPONIBLE"",
+    ""status"": ""3543705""
+    }","2025-06-11 02:00:40","AUXILIAR",""
+9855,"CD","5544555","7","PENDING","{
+    ""document_type"": ""CD"",
+    ""document_number"": ""5544555"",
+    ""requisitionNumber"": ""343373"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""DISPONIBLE"",
+    ""status"": ""4228304""
+    }","2025-06-11 02:00:40","AUXILIAR",""
+9854,"PT","467654545","7","PENDING","{
+    ""document_type"": ""PT"",
+    ""document_number"": ""467654545"",
+    ""requisitionNumber"": ""343429"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""DISPONIBLE"",
+    ""status"": ""4228300""
+    }","2025-06-11 02:00:40","AUXILIAR",""
+9853,"CE","4345665566","7","PENDING","{
+    ""document_type"": ""CE"",
+    ""document_number"": ""4345665566"",
+    ""requisitionNumber"": ""343429"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""DISPONIBLE"",
+    ""status"": ""4228303""
+    }","2025-06-11 02:00:39","AUXILIAR",""
+9852,"PT","727268","7","PENDING","{
+    ""document_type"": ""PT"",
+    ""document_number"": ""727268"",
+    ""requisitionNumber"": ""342928"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""3835607""
+    }","2025-06-11 01:37:37","DESIERRA",""
+9851,"PT","1090283","7","PENDING","{
+    ""document_type"": ""PT"",
+    ""document_number"": ""1090283"",
+    ""requisitionNumber"": ""342928"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""3871548""
+    }","2025-06-11 01:37:28","DESIERRA",""
+9850,"CC","1010217","7","PENDING","{
+    ""document_type"": ""CC"",
+    ""document_number"": ""1010217"",
+    ""requisitionNumber"": ""342928"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""2844522""
+    }","2025-06-11 01:37:22","DESIERRA",""
+9849,"CC","849813","7","PENDING","{
+    ""document_type"": ""CC"",
+    ""document_number"": ""849813"",
+    ""requisitionNumber"": ""342928"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""3082429""
+    }","2025-06-11 01:37:16","DESIERRA",""
+9848,"CC","653747","7","PENDING","{
+    ""document_type"": ""CC"",
+    ""document_number"": ""653747"",
+    ""requisitionNumber"": ""342928"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-11"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""3785115""
+    }","2025-06-11 01:37:06","DESIERRA",""
+9847,"CC","1073704700","7","PENDING","{
+    ""document_type"": ""CC"",
+    ""document_number"": ""1073704700"",
+    ""requisitionNumber"": ""343637"",
+    ""deliveryDate"": ""2025-02-26"",
+    ""requestDate"": ""2025-06-10"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""3543705""
+    }","2025-06-10 17:04:12","DESIERRA",""
+9846,"PT","467654545","7","PENDING","{
+    ""document_type"": ""PT"",
+    ""document_number"": ""467654545"",
+    ""requisitionNumber"": ""343429"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-10"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""4228300""
+    }","2025-06-10 12:01:44","DESIERRA",""
+9845,"CE","4345665566","7","PENDING","{
+    ""document_type"": ""CE"",
+    ""document_number"": ""4345665566"",
+    ""requisitionNumber"": ""343429"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-10"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""4228303""
+    }","2025-06-10 12:01:33","DESIERRA",""
+9844,"CD","5544555","7","PENDING","{
+    ""document_type"": ""CD"",
+    ""document_number"": ""5544555"",
+    ""requisitionNumber"": ""343373"",
+    ""deliveryDate"": ""2025-02-21"",
+    ""requestDate"": ""2025-06-10"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""4228304""
+    }","2025-06-10 11:49:23","DESIERRA",""
+9843,"CC","1585623596","10","ERROR","{
+        ""address"": ""CLL 38 # 51  03"",
+        ""birthCountry"": ""COLOMBIA"",
+        ""birthDate"": ""2000-06-05T00:00:00Z"",
+        ""birthDepartment"": ""CUNDINAMARCA"",
+        ""birthMunicipality"": ""SANTAFE DE BOGOTA"",
+        ""bloodGroup"": """",
+        ""cellphoneOne"": {
+            ""hasWhatsapp"": false,
+            ""number"": NULL
+        },
+        ""cellphoneTwo"": {
+            ""hasWhatsapp"": false,
+            ""number"": NULL
+        },
+        ""documentType"": ""CC"",
+        ""lastName"": ""PRUEBA MEJORS"",
+        ""locality"": ""CENTRO"",
+        ""mailOne"": {
+            ""address"": """",
+            ""isNotification"": true
+        },
+        ""mailTwo"": NULL,
+        ""name"": ""SITIO OK"",
+        ""neighborhood"": ""CENTRO"",
+        ""noDocument"": ""1585623596"",
+        ""originNacionality"": ""Colombiano/a"",
+        ""residenceCountry"": ""COLOMBIA"",
+        ""residenceDepartment"": ""CUNDINAMARCA"",
+        ""residenceDetails"": ""CLL 38 # 51  03"",
+        ""residenceMunicipality"": ""SANTAFE DE BOGOTA"",
+        ""sex"": ""M"",
+        ""sexBirth"": ""M""
+        }","2025-06-05 16:59:02","JARODRIGUEZ","No basic information found for document type: CC and document number: 1585623596"
+9842,"CC","1090450314","7","ERROR","{
+    ""document_type"": ""CC"",
+    ""document_number"": ""1090450314"",
+    ""requisitionNumber"": ""246960"",
+    ""deliveryDate"": ""2021-01-27"",
+    ""requestDate"": ""2025-06-04"",
+    ""selectionStatus"": ""DISPONIBLE"",
+    ""status"": ""921091""
+    }","2025-06-05 15:50:58","JOMONTANEZ","No basic information found for document type: CC and document number: 1090450314"
+9841,"CC","1001284850","7","PROCESSED","{
+    ""document_type"": ""CC"",
+    ""document_number"": ""1001284850"",
+    ""requisitionNumber"": ""343696"",
+    ""deliveryDate"": ""2025-06-05"",
+    ""requestDate"": ""2025-06-03"",
+    ""selectionStatus"": ""APLICADO"",
+    ""status"": ""4213534""
+    }","2025-06-05 15:50:57","DESIERRA","Replication successful"
+9840,"CC","1000726945","6","ERROR","{
+        ""document_type"": ""CC"",
+        ""document_number"": ""1000726945"",
+        ""cause"": ""3"",
+        ""company"": """",
+        ""companyDocumentNumber"": """",
+        ""companyDocumentType"": """",
+        ""description"": ""jhgfd"",
+        ""lock_type"": ""RESTRICTIVO"",
+        ""itBlocks"": ""true""
+    }","2025-05-28 09:53:39","INTRAUSER","No basic information found for document type: CC and document number: 1000726945"
+9839,"CC","1000726945","6","ERROR","{
+        ""document_type"": ""CC"",
+        ""document_number"": ""1000726945"",
+        ""cause"": ""3"",
+        ""company"": """",
+        ""companyDocumentNumber"": """",
+        ""companyDocumentType"": """",
+        ""description"": ""LKJHGFD"",
+        ""lock_type"": ""RESTRICTIVO"",
+        ""itBlocks"": ""true""
+    }","2025-05-28 09:53:36","INTRAUSER","No basic information found for document type: CC and document number: 1000726945"
+9838,"CC","1000726945","6","ERROR","{
+        ""document_type"": ""CC"",
+        ""document_number"": ""1000726945"",
+        ""cause"": ""3"",
+        ""company"": """",
+        ""companyDocumentNumber"": """",
+        ""companyDocumentType"": """",
+        ""description"": ""JJH"",
+        ""lock_type"": ""RESTRICTIVO"",
+        ""itBlocks"": ""true""
+    }","2025-05-28 09:53:31","INTRAUSER","No basic information found for document type: CC and document number: 1000726945"
+9837,"CC","1000726945","6","ERROR","{
+        ""document_type"": ""CC"",
+        ""document_number"": ""1000726945"",
+        ""cause"": ""3"",
+        ""company"": """",
+        ""companyDocumentNumber"": """",
+        ""companyDocumentType"": """",
+        ""description"": ""GDBDG"",
+        ""lock_type"": ""RESTRICTIVO"",
+        ""itBlocks"": ""true""
+    }","2025-05-28 09:53:28","INTRAUSER","No basic information found for document type: CC and document number: 1000726945"

@@ -45,6 +45,10 @@ create or replace PACKAGE      ADM.QB_LGC_GESTOR_DOCUMENTAL AS
 --** DESCRIPCION          : Se crea el procedimiento PL_DOCUMENTOS_ACUERDO encargado de generar
 --** la lista de documentos obligatorios en el acuerdo.
 --******************************************************************************
+--******************************************************************************
+--** ACTUALIZACION		  : JUFORERO 2025/05/13
+--** DESCRIPCION          : Se modifica pl_ins_gestor y se adiciona el documento numero ,127, 129, 131, 132 Documentos GCP
+--******************************************************************************
     --{MAP
     TYPE hashmap IS RECORD (llave VARCHAR2(4000), valor CLOB);
     TYPE LISTAHASHMAP IS TABLE OF hashmap INDEX BY BINARY_INTEGER;

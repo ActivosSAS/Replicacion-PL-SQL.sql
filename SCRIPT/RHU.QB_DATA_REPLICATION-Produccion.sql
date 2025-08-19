@@ -13,7 +13,8 @@
 --**********************************************************************************************************
 --Registro Masivo: /ms_sel_masivo_hv/ServletInicio?USS_ID_SESSION=session
 --Creacion Ofertas: https://reclutador-qa.partnerdavinci.com/sign-in/?usuUsuario=usuario&redirectTo=/crear-oferta
- 
+
+Administrar Accesos BMX -> Dominios Intranet -> seleccion_BMX y mostrar creacion de Ofertas 
 
 --**********************************************************************************************************
 --** OBJETIVO             : Insertar nuevos roles en la tabla `ROLES_DOMINIO`.  
@@ -25,7 +26,12 @@
 --**  - Ambos roles pertenecen a `DSA_ID = 5`, indicando que están dentro del mismo dominio funcional.  
 --**  - Se registran con valores predeterminados (`ROD_DEFAULT`, `ROD_ESTADO`, `ROD_CONFIGURADO`, `ROD_PUBLICO`) en `'N'`.  
 --**  - Se audita la creación con la fecha actual (`SYSDATE`) y el usuario `'DESIERRA'`.  
---**********************************************************************************************************                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+--**********************************************************************************************************     
+SELECT * FROM ROLES_DOMINIO WHERE ROD_NOMBRE='SELROL ADMIN OFERTAS RECLUTADOR';
+SELECT * FROM ROLES_DOMINIO WHERE ROD_NOMBRE='SELROL COMUNICACIONES OFERTAS RECLUTADOR';
+
+--
+/
 Insert into ROLES_DOMINIO (ROD_ID,DSA_ID,ROD_NOMBRE,ROD_DEFAULT,ROD_ESTADO,ROD_CONFIGURADO,ROD_PUBLICO,AUD_FECHA,AUD_USUARIO) 
 values ((select MAX(ROD_ID)+1 from ROLES_DOMINIO),5,'SELROL ADMIN OFERTAS RECLUTADOR','N','N','N','N',SYSDATE,'DESIERRA');
 /
@@ -76,9 +82,9 @@ VALUES (NULL, 715, UPPER('MESANTAMARIA'), TO_DATE('2021/01/11', 'YYYY/MM/DD'), '
 
 INSERT INTO AGRUPACION_USUARIO (ID_USUARIO, AGR_CODIGO, USU_USUARIO, AUD_FECHA, AUD_USUARIO, AGR_USUID)
 VALUES (NULL, 715, UPPER('CARPAEZ'), TO_DATE('2021/01/11', 'YYYY/MM/DD'), 'HQUINTERO', 7703);
-
+/
 INSERT INTO AGRUPACION_USUARIO (ID_USUARIO, AGR_CODIGO, USU_USUARIO, AUD_FECHA, AUD_USUARIO, AGR_USUID)
-VALUES (NULL, 715, UPPER('ddavinci'), TO_DATE('2021/01/11', 'YYYY/MM/DD'), 'HQUINTERO', 7703);
+VALUES (NULL, 715, UPPER('Diavega'), TO_DATE('2021/01/11', 'YYYY/MM/DD'), 'HQUINTERO', 7703);
 --**********************************************************************************************************
 --** OBJETIVO             : Insertar múltiples usuarios en la tabla `USUARIOS_DOMINIO` asignándolos a diferentes roles.  
 --**  
@@ -87,8 +93,8 @@ VALUES (NULL, 715, UPPER('ddavinci'), TO_DATE('2021/01/11', 'YYYY/MM/DD'), 'HQUI
 --**  - Se utiliza `INSERT ALL` para optimizar la inserción en una sola transacción.  
 --**  - Se calcula `UDS_ID` dinámicamente sumando `MAX(UDS_ID) + n` para evitar colisiones.  
 --**  - Los roles asignados son:  
---**    - 140: Coordinador  
---**    - 149: Comunicaciones  
+--**    - 140: Coordinador  select MAX(ROD_ID)+1
+--**    - 149: Comunicaciones  select MAX(ROD_ID)+1
 --**    - 40: Administrador  
 --**    - 9: Menú de Selección  
 --**    - 5: Analista  
@@ -104,16 +110,24 @@ VALUES (NULL, 715, UPPER('ddavinci'), TO_DATE('2021/01/11', 'YYYY/MM/DD'), 'HQUI
 INSERT INTO USUARIOS_DOMINIO (UDS_ID, ROD_ID, USU_USUARIO, UDS_ESTADO, AUD_FECHA, AUD_USUARIO)
         VALUES (SELECT MAX(UDS_ID) FROM USUARIOS_DOMINIO) + ROWNUM, 9, 'JOCOLMENARES', 'S', SYSDATE, 'DESIERRA');
 /
-SELECT * FROM USUARIOS_DOMINIO WHERE USU_USUARIO=UPPER('ddavinci');
-Insert into USUARIOS_DOMINIO (UDS_ID,ROD_ID,USU_USUARIO,UDS_ESTADO,AUD_FECHA,AUD_USUARIO) 
-values ((select MAX(UDS_ID)+1 from usuarios_dominio),9,'MESANTAMARIA','S',SYSDATE,'DESIERRA');
-Insert into USUARIOS_DOMINIO (UDS_ID,ROD_ID,USU_USUARIO,UDS_ESTADO,AUD_FECHA,AUD_USUARIO) 
-values ((select MAX(UDS_ID)+1 from usuarios_dominio),144,'MESANTAMARIA','S',SYSDATE,'DESIERRA');
+SELECT * FROM USUARIOS_DOMINIO WHERE USU_USUARIO=UPPER('LODUARTE');
 
 /
-Insert into USUARIOS_DOMINIO (UDS_ID,ROD_ID,USU_USUARIO,UDS_ESTADO,AUD_FECHA,AUD_USUARIO) 
-values ((select MAX(UDS_ID)+1 from usuarios_dominio),9,'JOCOLMENARES','S',SYSDATE,'DESIERRA');
 
+Insert into USUARIOS_DOMINIO (UDS_ID,ROD_ID,USU_USUARIO,UDS_ESTADO,AUD_FECHA,AUD_USUARIO) 
+values ((select MAX(UDS_ID)+1 from usuarios_dominio),9,'MESANTAMARIA','S',SYSDATE,'DESIERRA');
+/
+Insert into USUARIOS_DOMINIO (UDS_ID,ROD_ID,USU_USUARIO,UDS_ESTADO,AUD_FECHA,AUD_USUARIO) 
+values ((select MAX(UDS_ID)+1 from usuarios_dominio),144,UPPER('ddavinci'),'S',SYSDATE,'DESIERRA');
+/
+Insert into USUARIOS_DOMINIO (UDS_ID,ROD_ID,USU_USUARIO,UDS_ESTADO,AUD_FECHA,AUD_USUARIO) 
+values ((select MAX(UDS_ID)+1 from usuarios_dominio),9,UPPER('ddavinci'),'S',SYSDATE,'DESIERRA');
+/
+Insert into USUARIOS_DOMINIO (UDS_ID,ROD_ID,USU_USUARIO,UDS_ESTADO,AUD_FECHA,AUD_USUARIO) 
+values ((select MAX(UDS_ID)+1 from usuarios_dominio),9,'Diavega','S',SYSDATE,'DESIERRA');
+/
+SELECT * FROM USUARIOS_DOMINIO WHERE USU_USUARIO='Diavega';
+/
 Insert into USUARIOS_DOMINIO (UDS_ID,ROD_ID,USU_USUARIO,UDS_ESTADO,AUD_FECHA,AUD_USUARIO) 
 values ((select MAX(UDS_ID)+1 from usuarios_dominio),144,'JOCOLMENARES','S',SYSDATE,'DESIERRA');
 
@@ -233,7 +247,7 @@ SELECT (SELECT MAX(UDS_ID) FROM USUARIOS_DOMINIO) + ROWNUM,
        SYSDATE, 
        'JUFORERO'
 FROM (
-    SELECT DISTINCT ROD_ID FROM ( -- Elimina valores duplicados de ROD_ID
+    SELECT DISTINCT ROD_ID FROM ( 
         SELECT 5 AS ROD_ID FROM DUAL UNION ALL
         SELECT 9 FROM DUAL UNION ALL
         SELECT 10 FROM DUAL UNION ALL
