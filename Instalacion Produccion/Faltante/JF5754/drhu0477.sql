@@ -16,7 +16,11 @@ DECLARE
     l_msgid              RAW(16);
     l_id_rd              NUMBER; 
 BEGIN
+<<<<<<< HEAD
     IF :NEW.ECT_SIGLA IN ('PRE', 'INA') THEN----Solicitado Nuevamente 04/08/2025
+=======
+--    IF :NEW.ECT_SIGLA IN ('PRE', 'INA') THEN
+>>>>>>> 881ac0ffe60537651b3bd138deb24aa2e246d04d
     -- Inserción en la tabla RHU.Replication_Detail
     INSERT INTO RHU.Replication_Detail (
     ID_RD,
@@ -54,5 +58,9 @@ BEGIN
         payload            => l_message,
         msgid              => l_msgid
     );
+<<<<<<< HEAD
     END IF;
+=======
+--    END IF;
+>>>>>>> 881ac0ffe60537651b3bd138deb24aa2e246d04d
 END;

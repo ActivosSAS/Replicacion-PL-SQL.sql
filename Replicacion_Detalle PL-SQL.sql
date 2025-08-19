@@ -250,7 +250,11 @@ BEGIN
     dbms_aqadm.start_queue(queue_name => 'SQ_REPLICATION');
 END;
 /
+<<<<<<< HEAD
 SELECT * FROM AQ_ADMIN.queue_sel_replication;
+=======
+SELECT COUNT(*) FROM AQ_ADMIN.queue_sel_masivo;
+>>>>>>> 881ac0ffe60537651b3bd138deb24aa2e246d04d
 /
 --****************************************************************
 --** OBJETIVO             : Dar Privilegios de la Cola de Mensaria a los Esquemas correspondientes

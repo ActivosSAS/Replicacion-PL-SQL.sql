@@ -14,6 +14,7 @@ DECLARE
     l_message_properties dbms_aq.message_properties_t;
     l_message            sys.aq$_jms_text_message;
     l_msgid              RAW(16);
+<<<<<<< HEAD
     l_id_rd              NUMBER;
     l_it_blocks          VARCHAR2(5); -- 'true' o 'false'
 BEGIN
@@ -67,6 +68,37 @@ BEGIN
         }',                                   
         TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), 
         USER                                   
+=======
+    l_id_rd              NUMBER; 
+BEGIN
+    INSERT INTO RHU.Replication_Detail (
+    ID_RD,
+    DOCUMENT_TYPE,
+    DOCUMENT_NUMBER,
+    ID_CONFIG,
+    STATE_RD,
+    DATA_JSON,
+    DATE_RD,
+    USER_RD
+        ) VALUES (
+    NULL,                                   
+    :NEW.TDC_TD_EPL,                           
+    :NEW.EPL_ND,                           
+    (SELECT ID_CONFIG FROM RHU.Replication_Config WHERE LOCAL_TABLE_REF = 'PAR.HOJA_VIDA_RESTRICCIONES' AND GCP_TABLE_REF = 'BlockData'), 
+    'PENDING',                             
+    '{
+        "document_type": "' || :NEW.TDC_TD_EPL || '",
+        "document_number": "' || :NEW.EPL_ND || '",
+        "cause": "' || :NEW.CAU_SECUENCIA || '",
+        "company": "' || :NEW.EMP_ND || '",
+        "companyDocumentNumber": "' || :NEW.EMP_ND || '",
+        "companyDocumentType": "' || :NEW.TDC_TD || '",
+        "description": "' || :NEW.REST_MOTIVO || '",
+        "itBlocks": "' || 'true'/*:NEW.REST_TIPO*/ || '"
+    }',                                   
+    TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), 
+    USER                                   
+>>>>>>> 881ac0ffe60537651b3bd138deb24aa2e246d04d
     )
     RETURNING ID_RD INTO l_id_rd;
     
