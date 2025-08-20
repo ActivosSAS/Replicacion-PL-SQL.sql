@@ -19,6 +19,7 @@ DECLARE
     l_lib_consecutivo    libroingreso.lib_consecutivo%TYPE;
     l_fecha_entrega     requisicion_hoja_vida.rfe_fecha_entrega%TYPE;
     l_fecha_graba       requisicion_hoja_vida.rqhv_fecha_graba%TYPE;
+    v_dummy              NUMBER;
     
     PROCEDURE encolar_mensaje (p_id_rd IN NUMBER) IS
         l_enqueue_options    dbms_aq.enqueue_options_t;
@@ -38,6 +39,19 @@ DECLARE
         );
     END encolar_mensaje;
 BEGIN
+    
+    BEGIN
+        SELECT 1
+          INTO v_dummy
+          FROM RHU.DATA_ORIGIN_LOG
+         WHERE DOCUMENT_TYPE = :NEW.TDC_TD_EPL
+           AND DOCUMENT_NUMBER = :NEW.EPL_ND
+           AND ROWNUM = 1;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN            
+            RETURN;
+    END;
+
     -- Solicitado Nuevamente 04/08/2025: solo auditar si estado es PRE o INA
     IF :NEW.ECT_SIGLA IN ('PRE', 'INA') THEN
     

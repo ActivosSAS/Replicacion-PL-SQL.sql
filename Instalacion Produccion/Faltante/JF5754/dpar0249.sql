@@ -17,6 +17,9 @@ DECLARE
     l_id_rd              NUMBER;
     l_cto_numero         LIBROINGRESO.CTO_NUMERO%TYPE;
     l_lib_consecutivo libroingreso.lib_consecutivo%TYPE;
+    v_req_estado  PAR.REQUISICION.REQ_ESTADO%TYPE;
+    v_dummy              NUMBER;
+    
     PROCEDURE encolar_mensaje (p_id_rd IN NUMBER) IS
         l_enqueue_options    dbms_aq.enqueue_options_t;
         l_message_properties dbms_aq.message_properties_t;
@@ -36,7 +39,24 @@ DECLARE
     END encolar_mensaje;
 BEGIN
 
+     BEGIN
+        SELECT 1
+          INTO v_dummy
+          FROM RHU.DATA_ORIGIN_LOG
+         WHERE DOCUMENT_TYPE = :NEW.TDC_TD_EPL
+           AND DOCUMENT_NUMBER = :NEW.EPL_ND
+           AND ROWNUM = 1;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN            
+            RETURN;
+    END;
+
     IF :NEW.STDO_ESTADO IN ('DISPONIBLE', 'APLICADO') THEN
+         SELECT REQ_ESTADO
+            INTO v_req_estado
+            FROM PAR.REQUISICION
+            WHERE REQ_CONSECUTIVO = :NEW.REQ_CONSECUTIVO;
+
         INSERT INTO RHU.Replication_Detail (
             ID_RD,
             DOCUMENT_TYPE,
@@ -62,7 +82,7 @@ BEGIN
                 "deliveryDate": "'      || TO_CHAR(:NEW.RFE_FECHA_ENTREGA, 'YYYY-MM-DD') || '",
                 "requestDate": "'       || TO_CHAR(:NEW.RQHV_FECHA_GRABA, 'YYYY-MM-DD') || '",
                 "selectionStatus": "'   || :NEW.STDO_ESTADO || '",
-                "status": "'            || :NEW.REQ_ESTADO || '"
+                "status": "'            || v_req_estado || '"
             }',                                   
             TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), 
             USER                                   
@@ -79,6 +99,8 @@ BEGIN
               SELECT cto_numero, lib_consecutivo
                 FROM libroingreso
                WHERE nro_requisicion = :NEW.req_consecutivo
+               AND EPL_ND = :NEW.EPL_ND
+               AND TDC_TD_EPL = :NEW.TDC_TD_EPL
                ORDER BY lib_consecutivo DESC
           )
          WHERE ROWNUM = 1;
@@ -112,7 +134,7 @@ BEGIN
             "requisitionNumber": "' || TO_CHAR(:NEW.REQ_CONSECUTIVO) || '",
             "deliveryDate": "'      || TO_CHAR(:NEW.RFE_FECHA_ENTREGA, 'YYYY-MM-DD') || '",
             "requestDate": "'       || TO_CHAR(:NEW.RQHV_FECHA_GRABA, 'YYYY-MM-DD') || '",
-            "status": "'            || TO_CHAR(:NEW.DCM_RADICACION) || '",
+            "status": "'            || TO_CHAR(:NEW.STDO_ESTADO) || '",
             "agreementId": "'       || NVL(TO_CHAR(l_cto_numero), 'N/A') || '",
             "stateSource": "SELECCION",
             "bookId": "'            || NVL(TO_CHAR(l_lib_consecutivo), 'N/A') || '"
